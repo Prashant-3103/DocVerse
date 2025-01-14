@@ -1,7 +1,8 @@
 
 const { Pinecone } = require('@pinecone-database/pinecone');
+const apiKey = process.env.PDB_KEY
 const pinecone = new Pinecone({
-  apiKey: process.env.PDB_KEY,
+  apiKey: apiKey,
 });
 
 export const initialize = async () => {

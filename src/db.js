@@ -13,7 +13,7 @@ async function connectDB() {
     await mongoose.connect(MONGO_URI, {
       // Replace 'mydatabase' with your actual database name
       useNewUrlParser: true,
-      useUnifiedTopology: true,
+      
     });
     console.log('Connected to MongoDB');
   } catch (error) {
