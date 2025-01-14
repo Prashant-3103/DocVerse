@@ -18,7 +18,7 @@ console.log("hey")
 	return (
 		<>
 			<Head>
-				<title>Paperbot - Chat with my PDF</title>
+				<title>TalkwithDoc - Chat with my Sheet, PDF, CSV</title>
 
 			</Head>
 			<main
