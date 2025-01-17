@@ -1,4 +1,3 @@
-
 import formidable from "formidable-serverless";
 import { connectDB } from "@/src/db";
 import MyFileModel from "@/src/models/myFile";
@@ -11,6 +10,10 @@ import os from "os";
 import path from "path";
 import * as PDFJS from "pdfjs-dist/legacy/build/pdf";
 import fetch from "node-fetch";
+
+
+// Set worker source to a public path
+PDFJS.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS.version}/legacy/build/pdf.worker.js`;
 
 export const config = {
   api: {
@@ -93,7 +96,7 @@ const downloadFileFromGoogleDrive = async (googleDriveLink) => {
     throw new Error("Unable to fetch file metadata from Google Drive");
   }
 
-  const downloadUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${process.env.GOOGLE_API_KEY}`;
+  const downloadUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media&key=${process.env.MY_GOOGLE_API_KEY}`;
   const response = await fetch(downloadUrl);
 
   if (!response.ok) {
