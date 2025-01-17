@@ -1,6 +1,6 @@
 
 const { Pinecone } = require('@pinecone-database/pinecone');
-const apiKey = process.env.PDB_KEY
+const apiKey = process.env.MY_PDB_KEY
 const pinecone = new Pinecone({
   apiKey: apiKey,
 });

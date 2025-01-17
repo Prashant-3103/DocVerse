@@ -85,7 +85,7 @@ const downloadFileFromGoogleDrive = async (googleDriveLink) => {
     throw new Error("Invalid Google Drive link");
   }
 
-  const metadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?key=${process.env.GOOGLE_API_KEY}&fields=name,mimeType`;
+  const metadataUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?key=${process.env.MY_GOOGLE_API_KEY}&fields=name,mimeType`;
   const metadataResponse = await fetch(metadataUrl);
   const metadata = await metadataResponse.json();
 

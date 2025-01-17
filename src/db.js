@@ -7,13 +7,13 @@ async function connectDB() {
     return;
   }
 
-	const MONGO_URI = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.m6kta.mongodb.net/paperbot?retryWrites=true&w=majority&appName=Cluster0`
+	const MONGO_URI = `mongodb+srv://${process.env.MY_DB_USERNAME}:${process.env.MY_DB_PASSWORD}@cluster0.m6kta.mongodb.net/paperbot?retryWrites=true&w=majority&appName=Cluster0`
 
   try {
     await mongoose.connect(MONGO_URI, {
       // Replace 'mydatabase' with your actual database name
       useNewUrlParser: true,
-      
+
     });
     console.log('Connected to MongoDB');
   } catch (error) {
