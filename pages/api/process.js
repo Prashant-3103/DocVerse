@@ -1,5 +1,5 @@
 
-import * as PDFJS from "pdfjs-dist/legacy/build/pdf";
+import pdfParse from "pdf-parse";
 import XLSX from "xlsx";
 import MyFileModel from "@/src/models/myFile";
 import { connectDB } from "@/src/db";
@@ -8,14 +8,13 @@ import pinecone, { initialize } from "@/src/pinecone";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(400).json({ message: "HTTP method not allowed" });
+    return res.status(405).json({ message: "HTTP method not allowed" });
   }
 
   try {
     await connectDB();
 
     const { ids } = req.body; // Expecting multiple file IDs
-
     if (!ids || !Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({ message: "File IDs are required." });
     }
@@ -39,7 +38,7 @@ export default async function handler(req, res) {
       }
 
       try {
-        // Fetch file data
+        // Fetch file data from S3
         const myFileData = await fetch(myFile.fileUrl);
 
         if (!myFileData.ok) {
@@ -51,26 +50,21 @@ export default async function handler(req, res) {
 
         let content = "";
 
-        // Handle different file types
+        // Process content based on file type
         if (fileExtension === "pdf") {
-          const pdfDoc = await PDFJS.getDocument(await myFileData.arrayBuffer()).promise;
-          for (let i = 0; i < pdfDoc.numPages; i++) {
-            const page = await pdfDoc.getPage(i + 1);
-            const textContent = await page.getTextContent();
-            content += textContent.items.map((item) => item.str).join(" ") + "\n";
-          }
+          const buffer = await myFileData.arrayBuffer();
+          const pdfData = await pdfParse(Buffer.from(buffer));
+          content = pdfData.text;
         } else if (fileExtension === "csv") {
           const csvContent = await myFileData.text();
           const rows = csvContent.split("\n").map((row) => row.split(","));
           content = rows.map((row) => row.join(" ")).join(" \n");
-          console.log("CSV content extracted successfully:", content);
         } else if (["xls", "xlsx"].includes(fileExtension)) {
           const buffer = await myFileData.arrayBuffer();
           const workbook = XLSX.read(buffer, { type: "array" });
           const sheetName = workbook.SheetNames[0];
           const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
           content = sheet.map((row) => row.join(" ")).join(" \n");
-          console.log("xls content extracted successfully:", content);
         } else {
           throw new Error("Unsupported file type");
         }
