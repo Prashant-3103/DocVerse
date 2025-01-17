@@ -2,3 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ensure full-height layout and responsiveness */
+html,
+body,
+#__next {
+  height: 100%;
+  margin: 0;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  main {
+    flex-direction: column;
+  }
+
+  .divider {
+    display: none;
+  }
+}

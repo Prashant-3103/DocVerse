@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { FaCheckCircle } from "react-icons/fa";
 
 export default function MyFiles({ setActiveFiles, files }) {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -17,36 +18,52 @@ export default function MyFiles({ setActiveFiles, files }) {
   };
 
   return (
-    <div className="border">
-      <div className="bg-[#108dc7] text-primary-contrastText p-1 px-3">
-        My Files
-      </div>
+    <div className="bg-gray-100  p-2 text-center rounded-lg shadow-lg">
+      <h2 className="text-lg font-bold text-gray-700 mb-4">My Files</h2>
       {files.length > 0 ? (
-        <div>
+        <div className="space-y-3">
           {files.map((file, index) => (
-            <label
+            <div
               key={index}
-              className="block border-b w-full cursor-pointer rounded-lg p-2 text-left transition duration-500 hover:bg-neutral-100 hover:text-neutral-500"
+              className={`flex  justify-between p-3 border rounded-lg transition duration-300 ${
+                selectedFiles.some((f) => f._id === file._id)
+                  ? "bg-blue-100 border-blue-500"
+                  : "bg-white border-gray-300 hover:shadow-md"
+              }`}
             >
-              <input
-                type="checkbox"
-                className="mr-2"
-                onChange={(e) => handleFileSelection(file, e.target.checked)}
-              />
-              {index + 1}. {file.fileName}
-            </label>
+              <label className="flex items-left text-left space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  onChange={(e) =>
+                    handleFileSelection(file, e.target.checked)
+                  }
+                  checked={selectedFiles.some((f) => f._id === file._id)}
+                />
+                <span className="text-gray-700">
+                  {index + 1}. {file.fileName}
+                </span>
+              </label>
+              {selectedFiles.some((f) => f._id === file._id) && (
+                <FaCheckCircle className="text-blue-500" />
+              )}
+            </div>
           ))}
           <button
             type="button"
             onClick={handleConfirmSelection}
-            className="mt-4 inline-block rounded bg-blue-500 px-4 py-2 text-xs font-medium text-white shadow-md hover:bg-blue-600 focus:bg-blue-600 focus:outline-none active:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className={`w-full mt-4 inline-block rounded-lg px-4 py-2 text-sm font-medium text-white shadow-md transition duration-300 ${
+              selectedFiles.length === 0
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-blue-500 hover:bg-blue-600 focus:outline-none"
+            }`}
             disabled={selectedFiles.length === 0}
           >
             Confirm Selection
           </button>
         </div>
       ) : (
-        <p className="p-2 text-center text-gray-500">
+        <p className="p-4 text-center text-gray-500">
           No files found. Upload a drive link or file to start chatting.
         </p>
       )}
