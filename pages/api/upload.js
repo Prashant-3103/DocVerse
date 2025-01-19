@@ -32,6 +32,7 @@ const createIndex = async (indexName) => {
           region: "us-east-1",
         },
       },
+      deletionProtection: 'disabled',
     });
     console.log("[API] Index created:", indexName);
   } else {

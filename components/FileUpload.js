@@ -61,7 +61,7 @@ export default function FileUpload() {
         if (uploadMethod === "file") {
           setLastUploaded(file.name);
         } else {
-          setLastUploaded(driveLink);
+          setLastUploaded("File Via Drive Link");
         }
 
         setFile(null);
