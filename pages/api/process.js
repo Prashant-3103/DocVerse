@@ -1,6 +1,7 @@
 
 import pdfParse from "pdf-parse";
 import XLSX from "xlsx";
+import Tesseract from "tesseract.js";
 import MyFileModel from "@/src/models/myFile";
 import { connectDB } from "@/src/db";
 import { getEmbeddings } from "@/src/openAiServices";
@@ -65,6 +66,19 @@ export default async function handler(req, res) {
           const sheetName = workbook.SheetNames[0];
           const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
           content = sheet.map((row) => row.join(" ")).join(" \n");
+        } else if (["jpg", "jpeg", "png", "gif"].includes(fileExtension)) {
+          const buffer = await myFileData.arrayBuffer();
+          const tempPath = `temp_${id}.${fileExtension}`;
+          const fs = await import("fs/promises");
+          await fs.writeFile(tempPath, Buffer.from(buffer));
+
+          // Extract text using Tesseract.js
+          const result = await Tesseract.recognize(tempPath, "eng", {
+            logger: (info) => console.log(info),
+          });
+
+          content = result.data.text;
+          await fs.unlink(tempPath); // Clean up temporary file
         } else {
           throw new Error("Unsupported file type");
         }

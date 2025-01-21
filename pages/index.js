@@ -128,7 +128,7 @@ export default function Home() {
             deleteFile={deleteFile}
           />
           <ChatBox activeFiles={activeFiles} />
-          <Guideline/>
+          
         </div>
 
         {/* Upload Modal */}

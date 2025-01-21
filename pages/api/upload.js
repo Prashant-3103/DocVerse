@@ -11,6 +11,7 @@ import os from "os";
 import path from "path";
 import pdfParse from "pdf-parse";
 import fetch from "node-fetch";
+import Tesseract from "tesseract.js";
 
 export const config = {
   api: {
@@ -32,7 +33,7 @@ const createIndex = async (indexName) => {
           region: "us-east-1",
         },
       },
-      deletionProtection: 'disabled',
+      deletionProtection: "disabled",
     });
     console.log("[API] Index created:", indexName);
   } else {
@@ -60,6 +61,11 @@ const processFile = async (filePath, mimeType) => {
       const pdfBuffer = fs.readFileSync(filePath);
       const pdfData = await pdfParse(pdfBuffer);
       return pdfData.text;
+    } else if (mimeType.startsWith("image/")) {
+      const result = await Tesseract.recognize(filePath, "eng", {
+        logger: (info) => console.log("[OCR] Progress:", info),
+      });
+      return result.data.text.trim();
     } else {
       throw new Error("[API] Unsupported file type");
     }
@@ -67,6 +73,13 @@ const processFile = async (filePath, mimeType) => {
     console.error("[API] Error processing file:", error);
     throw error;
   }
+};
+
+// Function to generate a slugified file name
+const generateFileName = (originalName) => {
+  const baseName = originalName.split(".")[0]; // Remove extension
+  const timestamp = Date.now(); // Ensure uniqueness
+  return slugify(`${baseName}-${timestamp}`, { lower: true, strict: true });
 };
 
 // Function to download file from Google Drive
@@ -122,7 +135,7 @@ export default async function handler(req, res) {
       console.log("[API] Files:", files);
 
       const { driveLink } = fields;
-      let filePath, mimeType, fileName, processedData;
+      let filePath, mimeType, originalFileName, shortFileName, processedData;
 
       if (driveLink) {
         try {
@@ -130,7 +143,7 @@ export default async function handler(req, res) {
           const downloadResult = await downloadFileFromGoogleDrive(driveLink);
           filePath = downloadResult.tempPath;
           mimeType = downloadResult.mimeType;
-          fileName = downloadResult.name;
+          originalFileName = downloadResult.name;
 
           processedData = await processFile(filePath, mimeType);
 
@@ -149,36 +162,35 @@ export default async function handler(req, res) {
 
         filePath = uploadedFile.path;
         mimeType = uploadedFile.type;
-        fileName = uploadedFile.name;
-
-        try {
-          processedData = await processFile(filePath, mimeType);
-          console.log("[API] File processed successfully:", processedData);
-        } catch (error) {
-          console.error("[API] Error processing uploaded file:", error);
-          return res.status(400).json({ error: error.message });
-        }
+        originalFileName = uploadedFile.name;
       }
 
       try {
+        // Generate a short file name
+        shortFileName = generateFileName(originalFileName);
+
+        // Process the file
+        processedData = await processFile(filePath, mimeType);
+
+        // Upload the file to S3
         const s3Response = await s3Upload(process.env.S3_BUCKET, {
           path: filePath,
-          name: fileName,
+          name: `${shortFileName}.${originalFileName.split(".").pop()}`, // Add extension back
         });
 
         console.log("[API] File uploaded to S3:", s3Response.Location);
 
+        // Initialize Pinecone and create index
         await initialize();
         console.log("[API] Pinecone initialized");
 
-        const filenameSlug = slugify(fileName.split(".")[0], { lower: true, strict: true });
+        await createIndex(shortFileName);
 
-        await createIndex(filenameSlug);
-
+        // Save file info to MongoDB
         const myFile = new MyFileModel({
-          fileName: filenameSlug,
+          fileName: shortFileName,
           fileUrl: s3Response.Location,
-          vectorIndex: filenameSlug,
+          vectorIndex: shortFileName,
           processedData,
         });
 
@@ -192,10 +204,10 @@ export default async function handler(req, res) {
         return res.status(200).json({
           message: "File uploaded successfully and index created",
           fileUrl: s3Response.Location,
-          indexName: filenameSlug,
+          indexName: shortFileName,
         });
       } catch (uploadError) {
-        console.error("[API] Error uploading file or creating index:", uploadError);
+        console.error("[API] Error processing or uploading file:", uploadError);
         return res.status(500).json({ error: uploadError.message });
       }
     });
