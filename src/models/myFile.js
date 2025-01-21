@@ -7,14 +7,14 @@ const MyFileSchema = new Schema({
     type: String,
     required: [true, 'Filename is a required field.'],
     trim: true,
-    maxLength: 100,
+    maxLength: 200,
     unique: true,
   },
   fileUrl: {
     type: String,
     required: [true, 'File Url is a required field.'],
     trim: true,
-    maxLength: 100,
+    maxLength: 200,
     unique: true,
   },
   isProcessed: {
@@ -23,7 +23,7 @@ const MyFileSchema = new Schema({
   },
   vectorIndex: {
     type: String,
-    maxLength: 100,
+    maxLength: 200,
     unique: true,
     required: false,
   },
