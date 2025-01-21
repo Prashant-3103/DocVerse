@@ -1,8 +1,4 @@
 import Link from 'next/link';
-
-
-import Link from 'next/link';
-
 export default function Guidelines() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-100 to-blue-50 flex flex-col items-center justify-center px-4 sm:px-8 sm:p-4 lg:p-6">

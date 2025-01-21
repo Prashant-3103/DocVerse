@@ -1,8 +1,6 @@
 import { useState } from "react";
 import Link from "next/link";
 
-import { useState } from "react";
-import Link from "next/link";
 
 export default function Intro() {
   const [showGuidelines, setShowGuidelines] = useState(false);
