@@ -6,6 +6,8 @@ import Intro from "@/components/Intro";
 import ChatBox from "@/components/ChatBox";
 import useMyFiles from "@/apiHooks/useMyFiles";
 import Head from "next/head";
+import Link from "next/link";
+import Guideline from "@/components/Guideline";
 import Guideline from "@/components/Guideline";
 
 export default function Home() {
@@ -13,6 +15,7 @@ export default function Home() {
   const [leftWidth, setLeftWidth] = useState(30); // Left section width percentage
   const [isUploadModalOpen, setUploadModalOpen] = useState(false); // Upload Modal visibility
   const [isManageModalOpen, setManageModalOpen] = useState(false); // Manage Modal visibility
+  const { files, isError, isLoading, updateFile, deleteFile } = useMyFiles();
   const { files, isError, isLoading, updateFile, deleteFile } = useMyFiles();
 
   const handleMouseDown = (e) => {
@@ -46,10 +49,12 @@ export default function Home() {
     <>
       <Head>
         <title>DocVerse - Chat with Documents</title>
+        <title>DocVerse - Chat with Documents</title>
       </Head>
       <main className="h-screen flex flex-col bg-gradient-to-b from-blue-50 to-white">
         {/* Header */}
         <div className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-teal-500 py-4 shadow-md">
+          <h1 className="text-3xl font-bold text-white">DocVerse</h1>
           <h1 className="text-3xl font-bold text-white">DocVerse</h1>
         </div>
 
@@ -65,7 +70,15 @@ export default function Home() {
 
               {leftWidth > 55 ? (
                 <div className="flex mt-5 gap-5 flex-row">
+                <div className="flex mt-5 gap-5 flex-row">
                   <FileUpload />
+                  <MyFiles
+                    setActiveFiles={setActiveFiles}
+                    files={files}
+                    updateFile={updateFile}
+                    deleteFile={deleteFile}
+                  />
+
                   <MyFiles
                     setActiveFiles={setActiveFiles}
                     files={files}
@@ -76,6 +89,9 @@ export default function Home() {
                 </div>
               ) : (
                 <div className="mt-5 bg-gradient-to-r from-blue-100 to-blue-200 shadow-md rounded-lg p-5">
+                  <h2 className="text-lg text-center font-semibold text-blue-800 mb-4">
+                    Manage Your Files
+                  </h2>
                   <h2 className="text-lg text-center font-semibold text-blue-800 mb-4">
                     Manage Your Files
                   </h2>
@@ -93,6 +109,7 @@ export default function Home() {
                       📂 Manage Files
                     </button>
                   </div>
+                  <Guideline/>
                   <Guideline/>
                 </div>
               )}
@@ -120,6 +137,12 @@ export default function Home() {
         <div className="lg:hidden flex flex-col p-4">
           <Intro />
           <FileUpload />
+          <MyFiles
+            setActiveFiles={setActiveFiles}
+            files={files}
+            updateFile={updateFile}
+            deleteFile={deleteFile}
+          />
           <MyFiles
             setActiveFiles={setActiveFiles}
             files={files}
@@ -164,6 +187,12 @@ export default function Home() {
                 </button>
               </div>
               <div className="p-4 overflow-y-auto max-h-[60vh]">
+                <MyFiles
+                  setActiveFiles={setActiveFiles}
+                  files={files}
+                  updateFile={updateFile}
+                  deleteFile={deleteFile}
+                />
                 <MyFiles
                   setActiveFiles={setActiveFiles}
                   files={files}

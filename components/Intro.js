@@ -1,3 +1,5 @@
+import { useState } from "react";
+import Link from "next/link";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -41,4 +43,3 @@ export default function Intro() {
     </div>
   );
 }
-
